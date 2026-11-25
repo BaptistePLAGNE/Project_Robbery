@@ -2,6 +2,8 @@
 
 Ce fichier guide Claude Code (et tout contributeur) sur le projet **Project_Robbery** (nom Godot : « Rob »).
 
+> **Règle obligatoire : tenir ce fichier à jour.** À chaque modification du projet (code, scènes, ressources, architecture, conventions, correction d'un bug listé…), mettre à jour `CLAUDE.md` en conséquence, dans le même commit : ajouter ce qui est nouveau, corriger ce qui a changé, retirer des « Points d'attention connus » les bugs corrigés. Ce fichier doit toujours refléter l'état actuel du projet.
+
 ## Le projet
 
 Projet solo. Jeu de cartes 2D au tour par tour, de type *deckbuilder roguelike*.
