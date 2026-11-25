@@ -1,2 +1,0 @@
-CardData
-EnemyData
