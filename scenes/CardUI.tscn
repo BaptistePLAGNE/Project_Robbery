@@ -1,0 +1,135 @@
+[gd_scene format=3 uid="uid://dkch4hyw4f5kl"]
+
+[ext_resource type="Texture2D" uid="uid://ctvdgywpcb3pn" path="res://sprite/s-l400.jpg" id="1_4dx8l"]
+[ext_resource type="Script" uid="uid://w4cqu8hlsjah" path="res://scripts/CardUI.gd" id="1_qf083"]
+[ext_resource type="Texture2D" uid="uid://0ab8uk3oth8o" path="res://sprite/mana.png" id="2_qf083"]
+[ext_resource type="Texture2D" uid="uid://rpjnj7re86c4" path="res://sprite/Web-700.png" id="3_40ytf"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_s2oda"]
+font_size = 9
+
+[sub_resource type="LabelSettings" id="LabelSettings_5273u"]
+font_size = 7
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_xj2v5"]
+font_size = 9
+
+[sub_resource type="LabelSettings" id="LabelSettings_qbjcq"]
+font_size = 6
+font_color = Color(0, 0, 0, 1)
+
+[node name="Card" type="Control" unique_id=2065726315]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 3
+anchor_right = 0.13000001
+anchor_bottom = 0.3267219
+offset_right = 0.23999023
+offset_bottom = 0.07998657
+script = ExtResource("1_qf083")
+metadata/_edit_use_anchors_ = true
+
+[node name="BaseCardSprite2" type="TextureRect" parent="." unique_id=158115510]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("1_4dx8l")
+expand_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="CostBaseSprite" type="TextureRect" parent="." unique_id=529588896]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0528169
+anchor_top = 0.037406486
+anchor_right = 0.17424648
+anchor_bottom = 0.123406485
+texture = ExtResource("2_qf083")
+expand_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="ValueBaseSprite" type="TextureRect" parent="." unique_id=1419377160]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.81000006
+anchor_top = 0.029506236
+anchor_right = 0.9440001
+anchor_bottom = 0.11550625
+offset_left = -0.040023804
+offset_top = 0.16799927
+offset_right = 0.08493042
+offset_bottom = 0.16799545
+texture = ExtResource("2_qf083")
+expand_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="CardImage" type="TextureRect" parent="." unique_id=47479259]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.075
+anchor_top = 0.25
+anchor_right = 0.8999999
+anchor_bottom = 0.9
+texture = ExtResource("3_40ytf")
+expand_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="CostLabel" type="Label" parent="." unique_id=409227077]
+custom_minimum_size = Vector2(5, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.097345136
+anchor_top = 0.037605103
+anchor_right = 0.14159292
+anchor_bottom = 0.11908283
+text = "1"
+label_settings = SubResource("LabelSettings_s2oda")
+autowrap_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="CardLabel" type="Label" parent="." unique_id=1769288365]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.21238938
+anchor_top = 0.05014014
+anchor_right = 0.7876106
+anchor_bottom = 0.11908283
+text = "HELP dzqd"
+label_settings = SubResource("LabelSettings_5273u")
+horizontal_alignment = 1
+autowrap_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="ValueLabel" type="Label" parent="." unique_id=2018785214]
+custom_minimum_size = Vector2(5, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.8584071
+anchor_top = 0.037605103
+anchor_right = 0.912119
+anchor_bottom = 0.119452216
+offset_right = 0.05027771
+offset_bottom = -0.058937073
+text = "1"
+label_settings = SubResource("LabelSettings_xj2v5")
+autowrap_mode = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="CardDescription" type="Label" parent="." unique_id=266755688]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.21238938
+anchor_top = 0.1441529
+anchor_right = 0.920354
+anchor_bottom = 0.20056055
+text = "HELP 2 dqzdzqdq"
+label_settings = SubResource("LabelSettings_qbjcq")
+autowrap_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

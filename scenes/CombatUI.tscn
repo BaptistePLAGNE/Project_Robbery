@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://btokkvp83v4an"]
+
+[ext_resource type="Script" uid="uid://8ggetju4r4wc" path="res://scripts/CombatUI.gd" id="1_lb4i6"]
+[ext_resource type="PackedScene" uid="uid://bawby2csrfblw" path="res://scenes/HandManager.tscn" id="2_fmhf8"]
+
+[node name="CombatUI" type="Control" unique_id=585082101]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_lb4i6")
+
+[node name="EndTurnButton" type="Button" parent="." unique_id=1368346706]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -143.0
+offset_top = -48.0
+offset_right = -10.0
+offset_bottom = -10.0
+text = "End Round"
+
+[node name="HandManager" parent="." unique_id=1376809505 instance=ExtResource("2_fmhf8")]
+layout_mode = 1
+anchor_left = 0.18663195
+anchor_top = 0.6759259
+anchor_right = 0.814
+anchor_bottom = 1.0004815
+offset_right = 0.27197266
+offset_bottom = -0.31201172
+metadata/_edit_use_anchors_ = true
+
+[node name="EnergyLabel" type="Label" parent="." unique_id=468107982]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[connection signal="pressed" from="EndTurnButton" to="." method="_on_end_turn_button_pressed"]

@@ -1,0 +1,10 @@
+res://scenes/FightManager.tscn
+res://Ressources/Enemies/Gobelin.tres
+res://Ressources/Cards/Pistol.tres
+res://scenes/Character.gdshader
+res://scripts/FightManager.gd
+res://scripts/character.gd
+res://scenes/Enemy.tscn
+res://scripts/Ressources/EnemyData.gd
+res://scripts/Enemy.gd
+res://scenes/Character.tscn

@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://btokkvp83v4an"]
+
+[ext_resource type="Script" uid="uid://8ggetju4r4wc" path="res://scripts/CombatUI.gd" id="1_lb4i6"]
+[ext_resource type="PackedScene" uid="uid://bawby2csrfblw" path="res://scenes/HandManager.tscn" id="2_fmhf8"]
+
+[node name="CombatUI" type="Node2D" unique_id=715883435]
+script = ExtResource("1_lb4i6")
+
+[node name="EndTurnButton" type="Button" parent="." unique_id=1368346706]
+visible = false
+offset_left = 17.0
+offset_top = 14.0
+offset_right = 117.0
+offset_bottom = 45.0
+text = "Spawn Card"
+
+[node name="HandManager" parent="." unique_id=1376809505 instance=ExtResource("2_fmhf8")]
+
+[node name="EnergyLabel" type="Label" parent="." unique_id=468107982]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[connection signal="pressed" from="EndTurnButton" to="." method="_on_button_pressed"]

@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bawby2csrfblw"]
+
+[ext_resource type="Script" uid="uid://bxt6kgvjd3sp5" path="res://scripts/HandManager.gd" id="1_vchyo"]
+
+[node name="Hand" type="HBoxContainer" unique_id=1115644826]
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+script = ExtResource("1_vchyo")
+
+[connection signal="sort_children" from="." to="." method="_on_sort_children"]

@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://b8668qndbfufc"]
+
+[ext_resource type="Script" uid="uid://bm4t8jaq3r3h1" path="res://scripts/FightManager.gd" id="1_iyj1w"]
+[ext_resource type="PackedScene" uid="uid://btokkvp83v4an" path="res://scenes/CombatUI.tscn" id="2_sjbs0"]
+[ext_resource type="Texture2D" uid="uid://2cy3ifsprkbb" path="res://sprite/Player_Selected.png" id="3_jg1jg"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_xnb1g"]
+font_size = 100
+
+[node name="FightManager" type="Node2D" unique_id=68506502]
+script = ExtResource("1_iyj1w")
+
+[node name="End_Fight_Label" type="Label" parent="." unique_id=1643192649]
+offset_left = 246.0
+offset_top = 159.0
+offset_right = 968.0
+offset_bottom = 475.0
+label_settings = SubResource("LabelSettings_xnb1g")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CombatUI" parent="." unique_id=715883435 instance=ExtResource("2_sjbs0")]
+custom_minimum_size = Vector2(0, 0)
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="Enemy_Container" type="Node2D" parent="." unique_id=246054184]
+
+[node name="Character_Container" type="Node2D" parent="." unique_id=897820034]
+
+[node name="Character_Selected_Pin" type="Sprite2D" parent="." unique_id=948479396]
+position = Vector2(61.000008, 103)
+scale = Vector2(0.085, 0.085)
+texture = ExtResource("3_jg1jg")
+
+[node name="BackGround" type="Sprite2D" parent="." unique_id=1494932124]
+
+[node name="Enemy_SpawnPoints" type="Node2D" parent="." unique_id=1628400504]
+
+[node name="Enemy_SpawnPoint" type="Node2D" parent="Enemy_SpawnPoints" unique_id=1570968834]
+position = Vector2(801, 187)
+
+[node name="Enemy_SpawnPoint2" type="Node2D" parent="Enemy_SpawnPoints" unique_id=1423298988]
+position = Vector2(877, 134)
+
+[node name="Enemy_SpawnPoint3" type="Node2D" parent="Enemy_SpawnPoints" unique_id=2109174305]
+position = Vector2(724, 133)
+
+[node name="Enemy_SpawnPoint4" type="Node2D" parent="Enemy_SpawnPoints" unique_id=136400279]
+position = Vector2(945, 89)
+
+[node name="Enemy_SpawnPoint5" type="Node2D" parent="Enemy_SpawnPoints" unique_id=1429189035]
+position = Vector2(656, 80)
+
+[node name="Character_SpawnPoints" type="Node2D" parent="." unique_id=796454872]
+
+[node name="Charcter_SpawnPoint" type="Node2D" parent="Character_SpawnPoints" unique_id=55239573]
+position = Vector2(277, 249)
+
+[node name="Charcter_SpawnPoint2" type="Node2D" parent="Character_SpawnPoints" unique_id=1857498]
+position = Vector2(181, 200)
+
+[node name="Charcter_SpawnPoint3" type="Node2D" parent="Character_SpawnPoints" unique_id=1035354260]
+position = Vector2(261, 352)

@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://dq2kvybqj3pba"]
+
+[ext_resource type="Texture2D" uid="uid://bhaa2fg2rqhbk" path="res://sprite/craftpix-781196-free-desert-enemy-sprite-sheets-pixel-art/5 Mummy/Mummy.png" id="1_3gvst"]
+[ext_resource type="Script" uid="uid://c5ojnauyjnwd8" path="res://scripts/Enemy.gd" id="1_55jtl"]
+[ext_resource type="Texture2D" uid="uid://0ab8uk3oth8o" path="res://sprite/mana.png" id="3_mpr68"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_5wwv6"]
+font_size = 8
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mpr68"]
+size = Vector2(86, 103)
+
+[node name="Enemy" type="Node2D" unique_id=18733958]
+script = ExtResource("1_55jtl")
+
+[node name="EnemyImage" type="Sprite2D" parent="." unique_id=784161993]
+position = Vector2(-25.999996, -23.000006)
+scale = Vector2(2.3958333, 2.3958333)
+texture = ExtResource("1_3gvst")
+
+[node name="HP" type="Node2D" parent="." unique_id=1869651538]
+
+[node name="HPBase" type="Sprite2D" parent="HP" unique_id=452635280]
+position = Vector2(-40.000004, -59.000004)
+scale = Vector2(0.038099412, 0.042689722)
+texture = ExtResource("3_mpr68")
+
+[node name="HPLabel" type="Label" parent="HP" unique_id=2037448828]
+offset_left = -47.0
+offset_top = -65.0
+offset_right = -33.0
+offset_bottom = -53.0
+text = "100"
+label_settings = SubResource("LabelSettings_5wwv6")
+metadata/_edit_use_anchors_ = true
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1100993130]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1157105777]
+position = Vector2(-6, -15.5)
+shape = SubResource("RectangleShape2D_mpr68")
+
+[connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]

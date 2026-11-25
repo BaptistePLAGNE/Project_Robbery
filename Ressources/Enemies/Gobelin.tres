@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://b2rwvv5m3l61s"]
+
+[ext_resource type="Script" uid="uid://d0560rccrvhop" path="res://scripts/Ressources/EnemyData.gd" id="1_twsvs"]
+[ext_resource type="Script" uid="uid://dj3aiwnwrs3x0" path="res://scripts/Ressources/EnemyActionData.gd" id="1_vm6v7"]
+
+[sub_resource type="Resource" id="Resource_vm6v7"]
+script = ExtResource("1_vm6v7")
+id = "1"
+base_value = 10
+metadata/_custom_type_script = "uid://dj3aiwnwrs3x0"
+
+[resource]
+script = ExtResource("1_twsvs")
+id = "1"
+name = "Gobelin"
+max_hp = 30
+attack = 10
+possible_actions = Array[ExtResource("1_vm6v7")]([SubResource("Resource_vm6v7")])
+metadata/_custom_type_script = "uid://d0560rccrvhop"

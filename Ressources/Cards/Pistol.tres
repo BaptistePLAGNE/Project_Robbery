@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://dy5xsg8kjs2da"]
+
+[ext_resource type="Script" uid="uid://d2laipi4b1y18" path="res://scripts/Ressources/CardData.gd" id="1_bnopq"]
+[ext_resource type="Script" uid="uid://cxhv2rcy6lnc1" path="res://scripts/Ressources/CardActionData.gd" id="1_ih42g"]
+
+[sub_resource type="Resource" id="Resource_rfoa3"]
+script = ExtResource("1_ih42g")
+id = "1"
+base_value = 15
+metadata/_custom_type_script = "uid://cxhv2rcy6lnc1"
+
+[resource]
+script = ExtResource("1_bnopq")
+name = "Pistol"
+Description = "Pew pew"
+cost_value = 1
+base_actions = Array[ExtResource("1_ih42g")]([SubResource("Resource_rfoa3")])
+metadata/_custom_type_script = "uid://d2laipi4b1y18"
