@@ -55,6 +55,35 @@ FightManager (Node2D, FightManager.gd)      ← scène principale, orchestre le 
 └── End_Fight_Label
 ```
 
+### Arbre de la main de jeu
+```
+HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
+│   alignment = center ; placé dans le tiers bas de l'écran par CombatUI
+│   signal sort_children → _on_sort_children() → EventBus.hand_update
+└── Card × N (Control, CardUI.gd, scenes/CardUI.tscn)  ← instanciées par _add_card()
+    ├── BaseCardSprite2   (TextureRect)  fond de carte (s-l400.jpg)
+    ├── CostBaseSprite    (TextureRect)  pastille de coût (mana.png)
+    ├── ValueBaseSprite   (TextureRect)  pastille de valeur (mana.png)
+    ├── CardImage         (TextureRect)  illustration (Web-700.png, placeholder)
+    ├── CostLabel         (Label)        ← CardData.cost_value
+    ├── CardLabel         (Label)        nom de la carte (texte placeholder)
+    ├── ValueLabel        (Label)        ← CardData.base_value
+    └── CardDescription   (Label)        description (texte placeholder)
+```
+
+**`HandManager.gd`**
+- `_add_card()` : instancie `CardUI.tscn`, l'ajoute à la main, l'initialise avec la première carte de `CardDatabase.get_encounter("act1_easy_1")`, puis recalcule l'espacement.
+- `_remove_card(card)` : détruit la carte et recalcule l'espacement (non utilisé pour l'instant : `Card.execute_card()` fait elle-même `queue_free()`).
+- `_set_Separation()` : si la largeur totale des cartes dépasse 2/3 de la largeur du viewport, applique une séparation négative pour les faire se chevaucher ; sinon séparation de 4 px. (Instancie une carte temporaire pour lire sa taille, sans la libérer.)
+- `_on_sort_children()` : à chaque réagencement du conteneur, émet `EventBus.hand_update` pour que chaque carte mémorise sa position de repos.
+
+**`CardUI.gd` (classe `Card`)** : comportement d'une carte dans la main.
+- `hand_update` → mémorise `x_position_base` / `y_position_base` (position de repos).
+- Survol (`mouse_entered/exited`) → tween d'échelle (`hover_scale`) et de hauteur (`hover_up`), `z_index` à 10.
+- Clic gauche (`gui_input`) → `EventBus.card_pressed`.
+- `card_selected` → la carte sélectionnée s'agrandit, monte et passe au premier plan (`z_index` 100) ; les autres reviennent à leur position de repos.
+- `execute_card(caster, target)` → exécute chaque `CardActionData` de `data.base_actions`, puis `queue_free()`.
+
 ### Autoloads (singletons)
 - **`EventBus`** : bus de signaux global découplant UI et logique. Signaux : `card_pressed`, `card_selected`, `hand_update`, `character_pressed`, `enemy_pressed`, `end_turn_pressed`.
 - **`CardDatabase`** : dictionnaire `id → CardData` (`cards`) + listes de cartes prédéfinies (`cards_hand`), récupérées via `get_encounter(id)`.
@@ -96,6 +125,8 @@ Le contenu du jeu est défini en **données**, pas en code :
 - `EnemyDatabase.encounter_groups` référence des ennemis inexistants (`cultist`, `jaw_worm`, `boss_slime`) : ils sont silencieusement ignorés.
 - `CardDatabase.cards_hand` / `get_encounter` reprennent la structure des rencontres ennemies ; `HandManager._add_card()` pioche toujours la première carte de `act1_easy_1` (pas encore de vrai deck/pioche/défausse).
 - `cost_value` et `EnergyLabel` ne sont pas encore utilisés (pas de système d'énergie).
+- `CardUI.init_card()` ne renseigne ni `CardLabel` ni `CardDescription` (ils gardent leur texte placeholder de la scène) ni `CardImage` (ligne commentée).
+- `HandManager._set_Separation()` instancie une carte à chaque appel sans jamais la libérer (fuite mémoire).
 - Le label de valeur de la carte affiche `CardData.base_value`, alors que les dégâts réels viennent de `CardActionData.base_value`.
 - `Character.defend/apply_buff/apply_debuff` sont des stubs ; les personnages ont des PV aléatoires (1–100) et un sprite ennemi temporaire.
 - L'intention ennemie (`_update_intent_ui`) est écrite mais désactivée (`intent_icon`/`intent_label` non assignés).
