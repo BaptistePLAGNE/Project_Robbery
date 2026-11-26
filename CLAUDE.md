@@ -121,16 +121,28 @@ Le contenu du jeu est défini en **données**, pas en code :
 
 ## Points d'attention connus
 
-- `Enemy.apply_buff/apply_debuff` modifient `data.attack`, mais `EnemyData` ne déclare pas de champ `attack` (pourtant présent dans `Gobelin.tres`) → erreur à l'exécution si un buff/debuff ennemi est joué. De plus, modifier `data` altère la ressource partagée par tous les ennemis du même type.
-- `EnemyDatabase.encounter_groups` référence des ennemis inexistants (`cultist`, `jaw_worm`, `boss_slime`) : ils sont silencieusement ignorés.
-- `CardDatabase.cards_hand` / `get_encounter` reprennent la structure des rencontres ennemies ; `HandManager._add_card()` pioche toujours la première carte de `act1_easy_1` (pas encore de vrai deck/pioche/défausse).
-- `cost_value` et `EnergyLabel` ne sont pas encore utilisés (pas de système d'énergie).
-- `CardUI.init_card()` ne renseigne ni `CardLabel` ni `CardDescription` (ils gardent leur texte placeholder de la scène) ni `CardImage` (ligne commentée).
-- `HandManager._set_Separation()` instancie une carte à chaque appel sans jamais la libérer (fuite mémoire).
-- Le label de valeur de la carte affiche `CardData.base_value`, alors que les dégâts réels viennent de `CardActionData.base_value`.
-- `Character.defend/apply_buff/apply_debuff` sont des stubs ; les personnages ont des PV aléatoires (1–100) et un sprite ennemi temporaire.
-- L'intention ennemie (`_update_intent_ui`) est écrite mais désactivée (`intent_icon`/`intent_label` non assignés).
-- `CardActionData` et `EnemyActionData` sont des copies quasi identiques (même enum, même `execute`) : toute modification doit être faite dans les deux.
-- Plusieurs scripts gardent un en-tête copié-collé erroné (`# EnemyData.gd` dans `CardData.gd`, `CardActionData.gd`… ; `# EnemyDatabase.gd` dans `CardDatabase.gd`).
-- `FightManager` : la variable `heal` (somme des PV des personnages) est calculée mais inutilisée ; le spawn des ennemis utilise `enemy_spawn_point_array[i].position` (position locale) alors que les personnages utilisent `global_position`.
-- `enemy_turn()` ne vérifie pas qu'il reste des personnages : si l'équipe meurt avant le dernier ennemi, `character_container.get_child(...)` renvoie `null` et l'appel à `execute` plante (le test de fin de combat n'a lieu qu'après la boucle).
+Criticité notée de **1 à 5** (5 = le plus critique) :
+- **5** : plantage ou blocage en jeu normal.
+- **4** : plantage latent (dès qu'un contenu prévu est ajouté) ou corruption de données.
+- **3** : comportement faux visible par le joueur, ou fuite de ressources.
+- **2** : fonctionnalité incomplète, incohérence ou dette technique sans impact immédiat.
+- **1** : cosmétique, propreté du code.
+
+Liste triée par criticité décroissante. Retirer une ligne dès que le point est corrigé.
+
+| Crit. | Point |
+|:---:|---|
+| 5 | `enemy_turn()` ne vérifie pas qu'il reste des personnages : si l'équipe meurt avant le dernier ennemi, `character_container.get_child(...)` renvoie `null` et l'appel à `execute` plante (le test de fin de combat n'a lieu qu'après la boucle). |
+| 4 | `Enemy.apply_buff/apply_debuff` modifient `data.attack`, mais `EnemyData` ne déclare pas de champ `attack` (pourtant présent dans `Gobelin.tres`) → erreur à l'exécution si un buff/debuff ennemi est joué. De plus, modifier `data` altère la ressource partagée par tous les ennemis du même type. |
+| 3 | Le label de valeur de la carte affiche `CardData.base_value`, alors que les dégâts réels viennent de `CardActionData.base_value` (le Pistolet affiche 1 mais inflige 15). |
+| 3 | `HandManager._set_Separation()` instancie une carte à chaque appel sans jamais la libérer (fuite mémoire). |
+| 2 | `CardUI.init_card()` ne renseigne ni `CardLabel` ni `CardDescription` (ils gardent leur texte placeholder de la scène) ni `CardImage` (ligne commentée). |
+| 2 | `EnemyDatabase.encounter_groups` référence des ennemis inexistants (`cultist`, `jaw_worm`, `boss_slime`) : ils sont silencieusement ignorés (une rencontre peut se retrouver vide). |
+| 2 | `CardDatabase.cards_hand` / `get_encounter` reprennent la structure des rencontres ennemies ; `HandManager._add_card()` pioche toujours la première carte de `act1_easy_1` (pas encore de vrai deck/pioche/défausse). |
+| 2 | `cost_value` et `EnergyLabel` ne sont pas encore utilisés (pas de système d'énergie). |
+| 2 | `Character.defend/apply_buff/apply_debuff` sont des stubs ; les personnages ont des PV aléatoires (1–100) et un sprite ennemi temporaire. |
+| 2 | `CardActionData` et `EnemyActionData` sont des copies quasi identiques (même enum, même `execute`) : toute modification doit être faite dans les deux. |
+| 2 | `FightManager` : le spawn des ennemis utilise `enemy_spawn_point_array[i].position` (position locale) alors que les personnages utilisent `global_position` (sans effet tant que `Enemy_SpawnPoints` est à l'origine). |
+| 1 | L'intention ennemie (`_update_intent_ui`) est écrite mais désactivée (`intent_icon`/`intent_label` non assignés). |
+| 1 | `FightManager` : la variable `heal` (somme des PV des personnages) est calculée mais inutilisée. |
+| 1 | Plusieurs scripts gardent un en-tête copié-collé erroné (`# EnemyData.gd` dans `CardData.gd`, `CardActionData.gd`… ; `# EnemyDatabase.gd` dans `CardDatabase.gd`). |
