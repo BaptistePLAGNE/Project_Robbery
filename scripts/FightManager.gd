@@ -29,9 +29,6 @@ var rng = RandomNumberGenerator.new()
 # PV de départ de chaque personnage (en attendant des données par personnage).
 @export var character_hp: int = 50
 
-@onready var heal: int
-
-
 signal fight_end(int)
 
 # Personnages mobilisés pour la carte sélectionnée (énergie = nb de personnages).
@@ -104,8 +101,6 @@ func _ready() -> void:
 		new_character.visible = true
 		
 		new_character.global_position = character_spawn_point_array[id].global_position
-		
-		heal = heal + new_character.Character_HP
 
 	_update_energy()
 
@@ -167,30 +162,6 @@ func _on_enemy_pressed(_Enemy: Enemy):
 	await get_tree().create_timer(0.1).timeout
 	_test_end_fight()
 	
-#func somme(accum: int, nombre: Character):
-#	return accum + nombre.Character_HP
-#
-#
-#func _enemy_turn() -> void:
-#	for i in range(enemy_array.size()):
-#		if character_array.size() > 0:
-#			enemy_array[i].position = Vector2(enemy_array[i].position.x,enemy_array[i].position.y+50)
-#			await get_tree().create_timer(0.2).timeout
-#			
-#			var id_attacked : int = rng.randi_range(0,character_array.size()-1)
-#			character_array[id_attacked].deal_dmg(enemy_array[i].Enemy_Attack)
-#			
-#			if character_array[id_attacked].Character_HP < 0:
-#				character_array[id_attacked].queue_free()
-#				character_array.remove_at(id_attacked)
-#			
-#			heal = character_array.reduce(somme,0)
-#			heal_label.set_text("Health = "+str(heal))
-#			enemy_array[i].position = Vector2(enemy_array[i].position.x,enemy_array[i].position.y-50)
-#			await get_tree().create_timer(0.3).timeout
-#	_test_end_fight()
-#
-#
 func _on_end_round_pressed() -> void:
 	# Fin de tour : on vide la sélection (CombatUI désélectionne déjà les
 	# cartes visuellement via EventBus.card_selected).
