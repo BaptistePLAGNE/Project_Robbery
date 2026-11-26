@@ -140,7 +140,6 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 | 2 | Aucun retour visuel quand on clique un ennemi sans avoir sélectionné le bon nombre de personnages : le clic est simplement ignoré. |
 | 2 | Les boucliers (`current_shield`, personnages et ennemis) ne sont jamais réinitialisés entre les tours et ne sont pas affichés. |
 | 2 | Les personnages n'ont pas encore de données propres (`CharacterData`) : tous ont les mêmes PV (`FightManager.character_hp`, 50 par défaut) et un sprite ennemi temporaire. |
-| 2 | `FightManager` : le spawn des ennemis utilise `enemy_spawn_point_array[i].position` (position locale) alors que les personnages utilisent `global_position` (sans effet tant que `Enemy_SpawnPoints` est à l'origine). |
 | 1 | L'intention ennemie (`_update_intent_ui`) est écrite mais désactivée (`intent_icon`/`intent_label` non assignés). |
 | 1 | `FightManager` : la variable `heal` (somme des PV des personnages) est calculée mais inutilisée. |
 | 1 | Plusieurs scripts gardent un en-tête copié-collé erroné (`# EnemyData.gd` dans `CardData.gd`, `CardActionData.gd`… ; `# EnemyDatabase.gd` dans `CardDatabase.gd`). |

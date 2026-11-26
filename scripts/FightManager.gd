@@ -103,7 +103,7 @@ func _ready() -> void:
 		new_character.set_values(character_hp, id)
 		new_character.visible = true
 		
-		new_character.position = character_spawn_point_array[id].global_position
+		new_character.global_position = character_spawn_point_array[id].global_position
 		
 		heal = heal + new_character.Character_HP
 
@@ -117,7 +117,7 @@ func setup_battle(encounter_id) -> void:
 		var new_enemy = enemy_scene.instantiate()
 		enemy_container.add_child(new_enemy)
 		new_enemy.init_enemy(enemy_datas[i])
-		new_enemy.global_position = enemy_spawn_point_array[i].position
+		new_enemy.global_position = enemy_spawn_point_array[i].global_position
 	
 func enemy_turn() -> bool:
 	for enemy in enemy_container.get_children():
