@@ -12,8 +12,26 @@ var data: EnemyData
 var current_action : EnemyActionData = null
 var turn_count = 0
 
-@onready var intent_icon: Sprite2D
-@onready var intent_label: Label
+# Intention : action prévue au prochain tour, affichée au-dessus de l'ennemi.
+# Nœuds créés par code (voir _create_intent_nodes()), faute de nœuds dans Enemy.tscn.
+var intent_icon: Sprite2D
+var intent_label: Label
+
+func _ready() -> void:
+	_create_intent_nodes()
+
+func _create_intent_nodes() -> void:
+	intent_icon = Sprite2D.new()
+	intent_icon.position = Vector2(-55, -80)
+	intent_icon.visible = false
+	add_child(intent_icon)
+
+	intent_label = Label.new()
+	intent_label.position = Vector2(-47, -88)
+	var settings := LabelSettings.new()
+	settings.font_size = 8
+	intent_label.label_settings = settings
+	add_child(intent_label)
 
 func init_enemy(enemy_data: EnemyData) -> void:
 	data = enemy_data
@@ -26,24 +44,31 @@ func init_enemy(enemy_data: EnemyData) -> void:
 func plan_next_turn() -> void:
 	turn_count += 1
 	current_action = data.get_next_action(turn_count, current_action)
-	
-	#_update_intent_ui()
-	pass
+	_update_intent_ui()
 
 func _update_intent_ui() -> void:
 	if not current_action:
 		intent_icon.visible = false
-		return
-	
-	intent_icon.visible = true
-	intent_icon.texture = current_action.icon
-	
-	if current_action.action_type == ActionData.ActionType.ATTACK:
-		intent_label.set_text(str(current_action.base_value))
-	elif current_action.action_type == ActionData.ActionType.DEFEND:
-		intent_label.set_text(str(current_action.base_value))
-	else:
 		intent_label.set_text("")
+		return
+
+	# L'icône n'est affichée que si l'action en a une (aucune pour l'instant).
+	intent_icon.texture = current_action.icon
+	intent_icon.visible = current_action.icon != null
+
+	var value: int = current_action.base_value
+	match current_action.action_type:
+		ActionData.ActionType.ATTACK:
+			# Mêmes dégâts que ceux calculés par ActionData.execute().
+			intent_label.set_text("Attaque %d" % max(0, value + attack_modifier))
+		ActionData.ActionType.DEFEND:
+			intent_label.set_text("Défense %d" % value)
+		ActionData.ActionType.BUFF:
+			intent_label.set_text("Buff +%d" % value)
+		ActionData.ActionType.DEBUFF:
+			intent_label.set_text("Débuff -%d" % value)
+		_:
+			intent_label.set_text("?")
 
 func execute_turn(player_node: Node2D):
 	if current_action:
@@ -66,9 +91,11 @@ func defend(base_value: int) -> void:
 	
 func apply_buff(base_value: int) -> void:
 	attack_modifier += base_value
+	_update_intent_ui()
 
 func apply_debuff(base_value: int) -> void:
 	attack_modifier -= base_value
+	_update_intent_ui()
 
 
 func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:

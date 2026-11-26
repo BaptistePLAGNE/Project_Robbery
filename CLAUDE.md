@@ -96,6 +96,7 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 Le contenu du jeu est défini en **données**, pas en code :
 - `CardData` : `id`, `name`, `Description`, `cost_value` (= nombre de personnages à mobiliser, 1 par défaut), `texture`, `base_actions: Array[CardActionData]` ; `get_display_value()` renvoie la `base_value` de la première action (valeur affichée sur la carte).
 - `EnemyData` : `id`, `name`, `max_hp`, `texture`, `possible_actions: Array[EnemyActionData]` ; `get_next_action()` fait tourner les actions en boucle selon le numéro de tour.
+- **Intention ennemie** : `Enemy` affiche au-dessus de lui l'action prévue au prochain tour (« Attaque 10 », « Défense 5 »…, dégâts modificateur compris) et son `icon` si elle en a une. Les nœuds `intent_icon` / `intent_label` sont créés par code dans `Enemy._ready()` ; mis à jour à chaque `plan_next_turn()` et à chaque buff/debuff.
 - `ActionData` (classe de base) : `id`, `action_type` (`ATTACK`, `DEFEND`, `BUFF`, `DEBUFF`, `UNKNOW`), `icon`, `base_value`, et `execute(caster, target)`. `CardActionData` et `EnemyActionData` en héritent sans rien ajouter : elles servent à typer les actions des cartes et des ennemis.
 
 **Contrat « combattant » (duck typing)** : `execute()` appelle `take_damage`, `defend`, `apply_buff`, `apply_debuff` sur le caster/la cible et lit `caster.attack_modifier`. `Character` et `Enemy` doivent tous deux exposer ces 4 méthodes et la variable `attack_modifier: int`.
@@ -140,6 +141,5 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 | 2 | Aucun retour visuel quand on clique un ennemi sans avoir sélectionné le bon nombre de personnages : le clic est simplement ignoré. |
 | 2 | Les boucliers (`current_shield`, personnages et ennemis) ne sont jamais réinitialisés entre les tours et ne sont pas affichés. |
 | 2 | Les personnages n'ont pas encore de données propres (`CharacterData`) : tous ont les mêmes PV (`FightManager.character_hp`, 50 par défaut) et un sprite ennemi temporaire. |
-| 1 | L'intention ennemie (`_update_intent_ui`) est écrite mais désactivée (`intent_icon`/`intent_label` non assignés). |
 | 1 | `FightManager` : la variable `heal` (somme des PV des personnages) est calculée mais inutilisée. |
 | 1 | Plusieurs scripts gardent un en-tête copié-collé erroné (`# EnemyData.gd` dans `CardData.gd`, `CardActionData.gd`… ; `# EnemyDatabase.gd` dans `CardDatabase.gd`). |
