@@ -84,4 +84,5 @@ func _on_gui_input(event: InputEvent) -> void:
 func execute_card(caster: Node2D, target: Node2D):
 	for action in data.base_actions:
 		action.execute(caster, target)
+	EventBus.card_played.emit(data)
 	queue_free()

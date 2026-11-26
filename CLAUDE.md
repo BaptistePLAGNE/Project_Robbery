@@ -16,7 +16,7 @@ Projet solo. Jeu de cartes 2D au tour par tour, de type *deckbuilder roguelike*.
 - Les sprites actuels (pack craftpix « desert enemy ») sont des **placeholders** hors thème, à remplacer quand la démo technique sera plus aboutie : ne pas s'appuyer dessus pour des choix de design.
 
 ### État actuel
-**Démo technique d'un seul combat.** Le joueur contrôle 1 à 3 personnages face à des ennemis. À chaque tour, il sélectionne une carte, un personnage disponible, puis un ennemi cible. Chaque personnage ne peut agir qu'une fois par tour (il passe en niveaux de gris une fois utilisé). Quand le joueur termine son tour, chaque ennemi joue son action, puis la main est complétée jusqu'à 5 cartes. En fin de combat (`VICTORY` / `LOSS`), le jeu se ferme (`get_tree().quit()`). Pas encore de plateau, de deck, de pioche/défausse ni d'énergie.
+**Démo technique d'un seul combat.** Le joueur pioche dans un deck de départ (pioche mélangée, défausse remélangée quand la pioche est vide) et contrôle 1 à 3 personnages face à des ennemis. À chaque tour, il sélectionne une carte, un personnage disponible, puis un ennemi cible. Chaque personnage ne peut agir qu'une fois par tour (il passe en niveaux de gris une fois utilisé). Quand le joueur termine son tour, chaque ennemi joue son action, puis la main est complétée jusqu'à 5 cartes. En fin de combat (`VICTORY` / `LOSS`), le jeu se ferme (`get_tree().quit()`). Pas encore de plateau, ni de deck qui évolue entre les combats.
 
 ## Stack
 
@@ -60,7 +60,8 @@ FightManager (Node2D, FightManager.gd)      ← scène principale, orchestre le 
 HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 │   alignment = center ; placé dans le tiers bas de l'écran par CombatUI
 │   signal sort_children → _on_sort_children() → EventBus.hand_update
-└── Card × N (Control, CardUI.gd, scenes/CardUI.tscn)  ← instanciées par _add_card()
+│   draw_pile / discard_pile : Array[CardData] (données, pas de nœuds)
+└── Card × N (Control, CardUI.gd, scenes/CardUI.tscn)  ← instanciées par draw_card()
     ├── BaseCardSprite2   (TextureRect)  fond de carte (s-l400.jpg)
     ├── CostBaseSprite    (TextureRect)  pastille de coût (mana.png)
     ├── ValueBaseSprite   (TextureRect)  pastille de valeur (mana.png)
@@ -72,7 +73,9 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 ```
 
 **`HandManager.gd`**
-- `_add_card()` : instancie `CardUI.tscn`, l'ajoute à la main, l'initialise avec la première carte de `CardDatabase.get_encounter("act1_easy_1")`, puis recalcule l'espacement.
+- `setup_deck(deck_id)` : remplit `draw_pile` avec `CardDatabase.get_deck(deck_id)`, la mélange et vide la défausse. Appelé par `FightManager._ready()` avec `"starter"`.
+- `draw_card() -> bool` : prend la carte du dessus de la pioche, instancie `CardUI.tscn`, l'ajoute à la main et recalcule l'espacement. Pioche vide → la défausse est remélangée dans la pioche. Renvoie `false` si pioche et défausse sont vides.
+- `_on_card_played(card_data)` (sur `EventBus.card_played`) : ajoute la carte jouée à la défausse.
 - `_remove_card(card)` : détruit la carte et recalcule l'espacement (non utilisé pour l'instant : `Card.execute_card()` fait elle-même `queue_free()`).
 - `_set_Separation()` : si la largeur totale des cartes dépasse 2/3 de la largeur du viewport, applique une séparation négative pour les faire se chevaucher ; sinon séparation de 4 px. La largeur d'une carte est mesurée une seule fois par `_get_card_width()` (instance temporaire aussitôt libérée), puis mise en cache.
 - `_on_sort_children()` : à chaque réagencement du conteneur, émet `EventBus.hand_update` pour que chaque carte mémorise sa position de repos.
@@ -82,11 +85,11 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 - Survol (`mouse_entered/exited`) → tween d'échelle (`hover_scale`) et de hauteur (`hover_up`), `z_index` à 10.
 - Clic gauche (`gui_input`) → `EventBus.card_pressed`.
 - `card_selected` → la carte sélectionnée s'agrandit, monte et passe au premier plan (`z_index` 100) ; les autres reviennent à leur position de repos.
-- `execute_card(caster, target)` → exécute chaque `CardActionData` de `data.base_actions`, puis `queue_free()`.
+- `execute_card(caster, target)` → exécute chaque `CardActionData` de `data.base_actions`, émet `EventBus.card_played(data)` (→ défausse), puis `queue_free()`.
 
 ### Autoloads (singletons)
-- **`EventBus`** : bus de signaux global découplant UI et logique. Signaux : `card_pressed`, `card_selected`, `hand_update`, `character_pressed`, `enemy_pressed`, `end_turn_pressed`.
-- **`CardDatabase`** : dictionnaire `id → CardData` (`cards`) + listes de cartes prédéfinies (`cards_hand`), récupérées via `get_encounter(id)`.
+- **`EventBus`** : bus de signaux global découplant UI et logique. Signaux : `card_pressed`, `card_selected`, `card_played`, `hand_update`, `character_pressed`, `enemy_pressed`, `end_turn_pressed`.
+- **`CardDatabase`** : dictionnaire `id → CardData` (`cards`, via `get_card(id)`) + decks de départ (`starter_decks` : liste d'ids, une entrée par exemplaire), via `get_deck(id)`. Seul le deck `"starter"` existe (10 Pistolets).
 - **`EnemyDatabase`** : dictionnaire `id → EnemyData` (`enemies`) + groupes de rencontres (`encounter_groups`), via `get_encounter(id)`. Un id de rencontre ou d'ennemi inconnu déclenche un `push_error` (visible dans le débogueur) au lieu d'être ignoré. Seul `goblin` existe : il remplit toutes les rencontres en attendant d'autres ennemis.
 
 ### Données (pattern Resource)
@@ -103,10 +106,10 @@ Le contenu du jeu est défini en **données**, pas en code :
 1. Clic sur une carte → `EventBus.card_pressed` → `FightManager` mémorise/désélectionne la carte et émet `card_selected` (les CardUI s'animent).
 2. Clic sur un personnage disponible → `character_pressed` → le pin de sélection s'affiche.
 3. Clic sur un ennemi → `enemy_pressed` → si carte + personnage disponibles : `card.execute_card(character, enemy)`, la carte est détruite, le personnage devient indisponible, test de fin de combat.
-4. Bouton fin de tour → `end_turn_pressed` → `enemy_turn()` (chaque ennemi attaque un personnage vivant aléatoire, via `_get_alive_characters()`, 0,5 s entre chaque ; la boucle s'arrête si toute l'équipe est morte), main re-complétée à 5, personnages réactivés, test de fin de combat.
+4. Bouton fin de tour → `end_turn_pressed` → `enemy_turn()` (chaque ennemi attaque un personnage vivant aléatoire, via `_get_alive_characters()`, 0,5 s entre chaque ; la boucle s'arrête si toute l'équipe est morte), main re-complétée à 5 depuis la pioche, personnages réactivés, test de fin de combat.
 
 ### Ajouter du contenu
-- **Nouvelle carte** : créer un `.tres` de type `CardData` dans `Ressources/Cards/` (avec ses `CardActionData` en sous-ressources), puis l'ajouter à `CardDatabase.cards` et aux listes de `cards_hand`.
+- **Nouvelle carte** : créer un `.tres` de type `CardData` dans `Ressources/Cards/` (avec ses `CardActionData` en sous-ressources), puis l'ajouter à `CardDatabase.cards` et aux decks de `starter_decks`.
 - **Nouvel ennemi** : créer un `.tres` `EnemyData` dans `Ressources/Enemies/`, l'ajouter à `EnemyDatabase.enemies`, puis le référencer dans `encounter_groups`.
 - **Nouveau type d'action** : étendre l'enum `ActionType` et le `match` dans **les deux** fichiers `*ActionData.gd` (ils sont dupliqués), puis implémenter la méthode correspondante dans `Character` et `Enemy`.
 
@@ -134,7 +137,6 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 
 | Crit. | Point |
 |:---:|---|
-| 2 | `CardDatabase.cards_hand` / `get_encounter` reprennent la structure des rencontres ennemies ; `HandManager._add_card()` pioche toujours la première carte de `act1_easy_1` (pas encore de vrai deck/pioche/défausse). |
 | 2 | `cost_value` et `EnergyLabel` ne sont pas encore utilisés (pas de système d'énergie). |
 | 2 | `Character.defend` est un stub (pas de bouclier côté personnages, contrairement à `Enemy`) ; les personnages ont des PV aléatoires (1–100) et un sprite ennemi temporaire. |
 | 2 | `CardActionData` et `EnemyActionData` sont des copies quasi identiques (même enum, même `execute`) : toute modification doit être faite dans les deux. |

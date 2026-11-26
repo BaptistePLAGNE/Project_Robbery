@@ -63,8 +63,9 @@ func _ready() -> void:
 	
 	setup_battle("act1_easy_1")
 
+	CombatUI.HandManager.setup_deck("starter")
 	for i in range(5):
-		CombatUI.HandManager._add_card()
+		CombatUI.HandManager.draw_card()
 		
 	for i in range(rng.randi_range(1,3)):
 		var new_character: Character = character_scene.instantiate()
@@ -150,9 +151,10 @@ func _on_end_round_pressed() -> void:
 	#Enemy Turn
 	await enemy_turn()
 	
-	var range: int = 5-CombatUI.HandManager.get_child_count()
-	for i in range(range):
-		CombatUI.HandManager._add_card()
+	var cards_to_draw: int = 5 - CombatUI.HandManager.get_child_count()
+	for i in range(cards_to_draw):
+		if not CombatUI.HandManager.draw_card():
+			break
 	for _character in character_container.get_children():
 		_character.available = true
 		_character.character_image.material.set_shader_parameter("active", false)

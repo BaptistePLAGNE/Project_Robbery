@@ -3,6 +3,8 @@ extends Node
 
 signal card_pressed(card: Card)
 signal card_selected(card : Card)
+# Émis quand une carte est jouée, juste avant sa destruction (→ défausse).
+signal card_played(card_data: CardData)
 
 signal hand_update()
 
