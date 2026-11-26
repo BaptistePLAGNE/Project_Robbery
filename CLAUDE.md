@@ -87,7 +87,7 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 ### Autoloads (singletons)
 - **`EventBus`** : bus de signaux global découplant UI et logique. Signaux : `card_pressed`, `card_selected`, `hand_update`, `character_pressed`, `enemy_pressed`, `end_turn_pressed`.
 - **`CardDatabase`** : dictionnaire `id → CardData` (`cards`) + listes de cartes prédéfinies (`cards_hand`), récupérées via `get_encounter(id)`.
-- **`EnemyDatabase`** : dictionnaire `id → EnemyData` (`enemies`) + groupes de rencontres (`encounter_groups`), via `get_encounter(id)`.
+- **`EnemyDatabase`** : dictionnaire `id → EnemyData` (`enemies`) + groupes de rencontres (`encounter_groups`), via `get_encounter(id)`. Un id de rencontre ou d'ennemi inconnu déclenche un `push_error` (visible dans le débogueur) au lieu d'être ignoré. Seul `goblin` existe : il remplit toutes les rencontres en attendant d'autres ennemis.
 
 ### Données (pattern Resource)
 Le contenu du jeu est défini en **données**, pas en code :
@@ -134,7 +134,6 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 
 | Crit. | Point |
 |:---:|---|
-| 2 | `EnemyDatabase.encounter_groups` référence des ennemis inexistants (`cultist`, `jaw_worm`, `boss_slime`) : ils sont silencieusement ignorés (une rencontre peut se retrouver vide). |
 | 2 | `CardDatabase.cards_hand` / `get_encounter` reprennent la structure des rencontres ennemies ; `HandManager._add_card()` pioche toujours la première carte de `act1_easy_1` (pas encore de vrai deck/pioche/défausse). |
 | 2 | `cost_value` et `EnergyLabel` ne sont pas encore utilisés (pas de système d'énergie). |
 | 2 | `Character.defend` est un stub (pas de bouclier côté personnages, contrairement à `Enemy`) ; les personnages ont des PV aléatoires (1–100) et un sprite ennemi temporaire. |
