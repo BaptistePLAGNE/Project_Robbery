@@ -64,11 +64,11 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
     ├── BaseCardSprite2   (TextureRect)  fond de carte (s-l400.jpg)
     ├── CostBaseSprite    (TextureRect)  pastille de coût (mana.png)
     ├── ValueBaseSprite   (TextureRect)  pastille de valeur (mana.png)
-    ├── CardImage         (TextureRect)  illustration (Web-700.png, placeholder)
+    ├── CardImage         (TextureRect)  ← CardData.texture (Web-700.png par défaut)
     ├── CostLabel         (Label)        ← CardData.cost_value
-    ├── CardLabel         (Label)        nom de la carte (texte placeholder)
+    ├── CardLabel         (Label)        ← CardData.name
     ├── ValueLabel        (Label)        ← CardData.get_display_value()
-    └── CardDescription   (Label)        description (texte placeholder)
+    └── CardDescription   (Label)        ← CardData.Description
 ```
 
 **`HandManager.gd`**
@@ -134,7 +134,6 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 
 | Crit. | Point |
 |:---:|---|
-| 2 | `CardUI.init_card()` ne renseigne ni `CardLabel` ni `CardDescription` (ils gardent leur texte placeholder de la scène) ni `CardImage` (ligne commentée). |
 | 2 | `EnemyDatabase.encounter_groups` référence des ennemis inexistants (`cultist`, `jaw_worm`, `boss_slime`) : ils sont silencieusement ignorés (une rencontre peut se retrouver vide). |
 | 2 | `CardDatabase.cards_hand` / `get_encounter` reprennent la structure des rencontres ennemies ; `HandManager._add_card()` pioche toujours la première carte de `act1_easy_1` (pas encore de vrai deck/pioche/défausse). |
 | 2 | `cost_value` et `EnergyLabel` ne sont pas encore utilisés (pas de système d'énergie). |

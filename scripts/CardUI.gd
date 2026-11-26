@@ -48,7 +48,11 @@ func init_card(card_data: CardData) -> void:
 	data = card_data
 	cost_label.set_text(str(card_data.cost_value))
 	value_label.set_text(str(card_data.get_display_value()))
-	#card_image.texture = data.texture
+	card_label.set_text(card_data.name)
+	card_description.set_text(card_data.Description)
+	# L'illustration de la scène sert de placeholder tant que la carte n'a pas de texture.
+	if card_data.texture != null:
+		card_image.texture = card_data.texture
 	set_pivot_offset_ratio(Vector2(0.5, 0.5))
 	##pivot_offset = size / 2
 
