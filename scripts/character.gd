@@ -14,6 +14,9 @@ class_name Character extends Node2D
 
 @onready var available: bool = true
 
+# Bonus/malus d'attaque propre à ce personnage, actif tout le combat.
+var attack_modifier: int = 0
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	set_values(Character_HP, 0)
@@ -34,10 +37,10 @@ func defend(base_value: int) -> void:
 	null
 	
 func apply_buff(base_value: int) -> void:
-	null;
-		
+	attack_modifier += base_value
+
 func apply_debuff(base_value: int) -> void:
-	null;
+	attack_modifier -= base_value
 
 func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 	if event is InputEventMouseButton:

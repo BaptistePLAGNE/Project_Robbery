@@ -5,6 +5,8 @@ class_name Enemy extends Node2D
 
 var current_hp: int
 var current_shield : int
+# Bonus/malus d'attaque propre à cette instance, actif tout le combat.
+var attack_modifier: int = 0
 var data: EnemyData
 
 var current_action : EnemyActionData = null
@@ -63,10 +65,10 @@ func defend(base_value: int) -> void:
 	current_shield = current_shield + base_value
 	
 func apply_buff(base_value: int) -> void:
-	data.attack += base_value
-		
+	attack_modifier += base_value
+
 func apply_debuff(base_value: int) -> void:
-	data.attack -= base_value
+	attack_modifier -= base_value
 
 
 func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:

@@ -95,7 +95,9 @@ Le contenu du jeu est défini en **données**, pas en code :
 - `EnemyData` : `id`, `name`, `max_hp`, `texture`, `possible_actions: Array[EnemyActionData]` ; `get_next_action()` fait tourner les actions en boucle selon le numéro de tour.
 - `CardActionData` / `EnemyActionData` : `action_type` (`ATTACK`, `DEFEND`, `BUFF`, `DEBUFF`, `UNKNOW`) + `base_value`, et `execute(caster, target)`.
 
-**Contrat « combattant » (duck typing)** : `execute()` appelle `take_damage`, `defend`, `apply_buff`, `apply_debuff` sur le caster/la cible. `Character` et `Enemy` doivent tous deux exposer ces 4 méthodes.
+**Contrat « combattant » (duck typing)** : `execute()` appelle `take_damage`, `defend`, `apply_buff`, `apply_debuff` sur le caster/la cible et lit `caster.attack_modifier`. `Character` et `Enemy` doivent tous deux exposer ces 4 méthodes et la variable `attack_modifier: int`.
+
+**Buffs / debuffs** : chaque combattant a un `attack_modifier` propre à son instance (jamais stocké dans la ressource `EnemyData`, partagée entre ennemis du même type). `apply_buff` l'augmente, `apply_debuff` le diminue ; il reste actif tout le combat. Une action `ATTACK` inflige `max(0, base_value + caster.attack_modifier)`.
 
 ### Flux d'un tour
 1. Clic sur une carte → `EventBus.card_pressed` → `FightManager` mémorise/désélectionne la carte et émet `card_selected` (les CardUI s'animent).
@@ -132,14 +134,13 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 
 | Crit. | Point |
 |:---:|---|
-| 4 | `Enemy.apply_buff/apply_debuff` modifient `data.attack`, mais `EnemyData` ne déclare pas de champ `attack` (pourtant présent dans `Gobelin.tres`) → erreur à l'exécution si un buff/debuff ennemi est joué. De plus, modifier `data` altère la ressource partagée par tous les ennemis du même type. |
 | 3 | Le label de valeur de la carte affiche `CardData.base_value`, alors que les dégâts réels viennent de `CardActionData.base_value` (le Pistolet affiche 1 mais inflige 15). |
 | 3 | `HandManager._set_Separation()` instancie une carte à chaque appel sans jamais la libérer (fuite mémoire). |
 | 2 | `CardUI.init_card()` ne renseigne ni `CardLabel` ni `CardDescription` (ils gardent leur texte placeholder de la scène) ni `CardImage` (ligne commentée). |
 | 2 | `EnemyDatabase.encounter_groups` référence des ennemis inexistants (`cultist`, `jaw_worm`, `boss_slime`) : ils sont silencieusement ignorés (une rencontre peut se retrouver vide). |
 | 2 | `CardDatabase.cards_hand` / `get_encounter` reprennent la structure des rencontres ennemies ; `HandManager._add_card()` pioche toujours la première carte de `act1_easy_1` (pas encore de vrai deck/pioche/défausse). |
 | 2 | `cost_value` et `EnergyLabel` ne sont pas encore utilisés (pas de système d'énergie). |
-| 2 | `Character.defend/apply_buff/apply_debuff` sont des stubs ; les personnages ont des PV aléatoires (1–100) et un sprite ennemi temporaire. |
+| 2 | `Character.defend` est un stub (pas de bouclier côté personnages, contrairement à `Enemy`) ; les personnages ont des PV aléatoires (1–100) et un sprite ennemi temporaire. |
 | 2 | `CardActionData` et `EnemyActionData` sont des copies quasi identiques (même enum, même `execute`) : toute modification doit être faite dans les deux. |
 | 2 | `FightManager` : le spawn des ennemis utilise `enemy_spawn_point_array[i].position` (position locale) alors que les personnages utilisent `global_position` (sans effet tant que `Enemy_SpawnPoints` est à l'origine). |
 | 1 | L'intention ennemie (`_update_intent_ui`) est écrite mais désactivée (`intent_icon`/`intent_label` non assignés). |

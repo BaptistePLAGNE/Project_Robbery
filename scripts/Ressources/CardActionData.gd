@@ -12,7 +12,8 @@ enum ActionType {ATTACK, DEFEND, BUFF, DEBUFF, UNKNOW}
 func execute(caster: Node2D, target: Node2D) -> void:
 	match action_type:
 		ActionType.ATTACK:
-			target.take_damage(base_value)
+			# Dégâts = valeur de l'action + modificateur d'attaque du lanceur, jamais négatifs.
+			target.take_damage(max(0, base_value + caster.attack_modifier))
 		ActionType.DEFEND:
 			caster.defend(base_value)
 		ActionType.BUFF:

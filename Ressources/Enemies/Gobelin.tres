@@ -14,6 +14,5 @@ script = ExtResource("1_twsvs")
 id = "1"
 name = "Gobelin"
 max_hp = 30
-attack = 10
 possible_actions = Array[ExtResource("1_vm6v7")]([SubResource("Resource_vm6v7")])
 metadata/_custom_type_script = "uid://d0560rccrvhop"
