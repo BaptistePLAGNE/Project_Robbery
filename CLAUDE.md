@@ -141,4 +141,3 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 | 2 | Aucun retour visuel quand on clique un ennemi sans avoir sélectionné le bon nombre de personnages : le clic est simplement ignoré. |
 | 2 | Les boucliers (`current_shield`, personnages et ennemis) ne sont jamais réinitialisés entre les tours et ne sont pas affichés. |
 | 2 | Les personnages n'ont pas encore de données propres (`CharacterData`) : tous ont les mêmes PV (`FightManager.character_hp`, 50 par défaut) et un sprite ennemi temporaire. |
-| 1 | Plusieurs scripts gardent un en-tête copié-collé erroné (`# EnemyData.gd` dans `CardData.gd`, `CardActionData.gd`… ; `# EnemyDatabase.gd` dans `CardDatabase.gd`). |

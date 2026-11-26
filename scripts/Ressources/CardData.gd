@@ -1,4 +1,4 @@
-# EnemyData.gd
+# CardData.gd
 class_name CardData
 extends Resource
 
