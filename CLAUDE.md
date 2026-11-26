@@ -105,8 +105,8 @@ Le contenu du jeu est défini en **données**, pas en code :
 ### Flux d'un tour
 1. Clic sur une carte → `EventBus.card_pressed` → `FightManager` mémorise/désélectionne la carte et émet `card_selected` (les CardUI s'animent).
 2. Clic sur un personnage disponible → `character_pressed` → le pin de sélection s'affiche.
-3. Clic sur un ennemi → `enemy_pressed` → si carte + personnage disponibles : `card.execute_card(character, enemy)`, la carte est détruite, le personnage devient indisponible, test de fin de combat.
-4. Bouton fin de tour → `end_turn_pressed` → `enemy_turn()` (chaque ennemi attaque un personnage vivant aléatoire, via `_get_alive_characters()`, 0,5 s entre chaque ; la boucle s'arrête si toute l'équipe est morte), main re-complétée à 5 depuis la pioche, personnages réactivés, test de fin de combat.
+3. Clic sur un ennemi → `enemy_pressed` → si carte + personnage disponibles : la sélection (carte et personnage) est vidée et le personnage devient indisponible, puis `card.execute_card(character, enemy)` (la carte est détruite), test de fin de combat.
+4. Bouton fin de tour → `end_turn_pressed` → sélection vidée → `enemy_turn()` (chaque ennemi attaque un personnage vivant aléatoire, via `_get_alive_characters()`, 0,5 s entre chaque ; la boucle s'arrête si toute l'équipe est morte), main re-complétée à 5 depuis la pioche, personnages réactivés, test de fin de combat.
 
 ### Ajouter du contenu
 - **Nouvelle carte** : créer un `.tres` de type `CardData` dans `Ressources/Cards/` (avec ses `CardActionData` en sous-ressources), puis l'ajouter à `CardDatabase.cards` et aux decks de `starter_decks`.

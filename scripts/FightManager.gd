@@ -115,13 +115,17 @@ func _on_enemy_pressed(_Enemy: Enemy):
 	if card_selected != null:
 			if character_selected != null:
 				if character_selected.available:
-					card_selected.execute_card(character_selected, _Enemy)
-					await get_tree().create_timer(0.1).timeout
-					print('Test Fin de Jeu')
-					_test_end_fight()
-					character_selected.available = false
-					character_selected.character_image.material.set_shader_parameter("active", true)
+					var caster: Character = character_selected
+					var played_card: Card = card_selected
+					# La sélection est vidée AVANT l'attente : la carte jouée va être
+					# détruite, elle ne doit plus jamais être référencée.
+					card_selected = null
+					caster.available = false
+					caster.character_image.material.set_shader_parameter("active", true)
 					EventBus.character_pressed.emit(null)
+					played_card.execute_card(caster, _Enemy)
+					await get_tree().create_timer(0.1).timeout
+					_test_end_fight()
 	
 #func somme(accum: int, nombre: Character):
 #	return accum + nombre.Character_HP
@@ -148,6 +152,11 @@ func _on_enemy_pressed(_Enemy: Enemy):
 #
 #
 func _on_end_round_pressed() -> void:
+	# Fin de tour : on vide la sélection (CombatUI désélectionne déjà les
+	# cartes visuellement via EventBus.card_selected).
+	card_selected = null
+	EventBus.character_pressed.emit(null)
+
 	#Enemy Turn
 	await enemy_turn()
 	
