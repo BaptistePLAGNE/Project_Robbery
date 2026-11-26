@@ -38,9 +38,9 @@ func _update_intent_ui() -> void:
 	intent_icon.visible = true
 	intent_icon.texture = current_action.icon
 	
-	if current_action.action_type == EnemyActionData.ActionType.ATTACK:
+	if current_action.action_type == ActionData.ActionType.ATTACK:
 		intent_label.set_text(str(current_action.base_value))
-	elif current_action.action_type == EnemyActionData.ActionType.DEFEND:
+	elif current_action.action_type == ActionData.ActionType.DEFEND:
 		intent_label.set_text(str(current_action.base_value))
 	else:
 		intent_label.set_text("")

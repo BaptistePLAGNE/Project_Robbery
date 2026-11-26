@@ -33,7 +33,7 @@ project.godot            Config moteur + autoloads
 scenes/                  Scènes .tscn (+ shader Character.gdshader)
 scripts/                 Scripts attachés aux scènes
 scripts/Autoload/        Singletons : EventBus, CardDatabase, EnemyDatabase
-scripts/Ressources/      Classes Resource de données (CardData, EnemyData, *ActionData)
+scripts/Ressources/      Classes Resource de données (CardData, EnemyData, ActionData et ses sous-classes)
 Ressources/Cards/        Instances .tres de cartes (ex. Pistol.tres)
 Ressources/Enemies/      Instances .tres d'ennemis (ex. Gobelin.tres)
 sprite/                  Assets graphiques (pack craftpix « desert enemy » + UI)
@@ -96,7 +96,7 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 Le contenu du jeu est défini en **données**, pas en code :
 - `CardData` : `id`, `name`, `Description`, `cost_value` (= nombre de personnages à mobiliser, 1 par défaut), `texture`, `base_actions: Array[CardActionData]` ; `get_display_value()` renvoie la `base_value` de la première action (valeur affichée sur la carte).
 - `EnemyData` : `id`, `name`, `max_hp`, `texture`, `possible_actions: Array[EnemyActionData]` ; `get_next_action()` fait tourner les actions en boucle selon le numéro de tour.
-- `CardActionData` / `EnemyActionData` : `action_type` (`ATTACK`, `DEFEND`, `BUFF`, `DEBUFF`, `UNKNOW`) + `base_value`, et `execute(caster, target)`.
+- `ActionData` (classe de base) : `id`, `action_type` (`ATTACK`, `DEFEND`, `BUFF`, `DEBUFF`, `UNKNOW`), `icon`, `base_value`, et `execute(caster, target)`. `CardActionData` et `EnemyActionData` en héritent sans rien ajouter : elles servent à typer les actions des cartes et des ennemis.
 
 **Contrat « combattant » (duck typing)** : `execute()` appelle `take_damage`, `defend`, `apply_buff`, `apply_debuff` sur le caster/la cible et lit `caster.attack_modifier`. `Character` et `Enemy` doivent tous deux exposer ces 4 méthodes et la variable `attack_modifier: int`.
 
@@ -111,7 +111,7 @@ Le contenu du jeu est défini en **données**, pas en code :
 ### Ajouter du contenu
 - **Nouvelle carte** : créer un `.tres` de type `CardData` dans `Ressources/Cards/` (avec ses `CardActionData` en sous-ressources), puis l'ajouter à `CardDatabase.cards` et aux decks de `starter_decks`.
 - **Nouvel ennemi** : créer un `.tres` `EnemyData` dans `Ressources/Enemies/`, l'ajouter à `EnemyDatabase.enemies`, puis le référencer dans `encounter_groups`.
-- **Nouveau type d'action** : étendre l'enum `ActionType` et le `match` dans **les deux** fichiers `*ActionData.gd` (ils sont dupliqués), puis implémenter la méthode correspondante dans `Character` et `Enemy`.
+- **Nouveau type d'action** : étendre l'enum `ActionType` et le `match` dans `ActionData.gd`, puis implémenter la méthode correspondante dans `Character` et `Enemy`.
 
 ## Conventions
 
@@ -140,7 +140,6 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 | 2 | Aucun retour visuel quand on clique un ennemi sans avoir sélectionné le bon nombre de personnages : le clic est simplement ignoré. |
 | 2 | Les boucliers (`current_shield`, personnages et ennemis) ne sont jamais réinitialisés entre les tours et ne sont pas affichés. |
 | 2 | Les personnages n'ont pas encore de données propres (`CharacterData`) : tous ont les mêmes PV (`FightManager.character_hp`, 50 par défaut) et un sprite ennemi temporaire. |
-| 2 | `CardActionData` et `EnemyActionData` sont des copies quasi identiques (même enum, même `execute`) : toute modification doit être faite dans les deux. |
 | 2 | `FightManager` : le spawn des ennemis utilise `enemy_spawn_point_array[i].position` (position locale) alors que les personnages utilisent `global_position` (sans effet tant que `Enemy_SpawnPoints` est à l'origine). |
 | 1 | L'intention ennemie (`_update_intent_ui`) est écrite mais désactivée (`intent_icon`/`intent_label` non assignés). |
 | 1 | `FightManager` : la variable `heal` (somme des PV des personnages) est calculée mais inutilisée. |
