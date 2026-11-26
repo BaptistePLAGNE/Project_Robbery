@@ -67,7 +67,7 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
     ├── CardImage         (TextureRect)  illustration (Web-700.png, placeholder)
     ├── CostLabel         (Label)        ← CardData.cost_value
     ├── CardLabel         (Label)        nom de la carte (texte placeholder)
-    ├── ValueLabel        (Label)        ← CardData.base_value
+    ├── ValueLabel        (Label)        ← CardData.get_display_value()
     └── CardDescription   (Label)        description (texte placeholder)
 ```
 
@@ -91,7 +91,7 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 
 ### Données (pattern Resource)
 Le contenu du jeu est défini en **données**, pas en code :
-- `CardData` : `id`, `name`, `Description`, `cost_value`, `base_value`, `texture`, `base_actions: Array[CardActionData]`.
+- `CardData` : `id`, `name`, `Description`, `cost_value`, `texture`, `base_actions: Array[CardActionData]` ; `get_display_value()` renvoie la `base_value` de la première action (valeur affichée sur la carte).
 - `EnemyData` : `id`, `name`, `max_hp`, `texture`, `possible_actions: Array[EnemyActionData]` ; `get_next_action()` fait tourner les actions en boucle selon le numéro de tour.
 - `CardActionData` / `EnemyActionData` : `action_type` (`ATTACK`, `DEFEND`, `BUFF`, `DEBUFF`, `UNKNOW`) + `base_value`, et `execute(caster, target)`.
 
@@ -134,7 +134,6 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 
 | Crit. | Point |
 |:---:|---|
-| 3 | Le label de valeur de la carte affiche `CardData.base_value`, alors que les dégâts réels viennent de `CardActionData.base_value` (le Pistolet affiche 1 mais inflige 15). |
 | 3 | `HandManager._set_Separation()` instancie une carte à chaque appel sans jamais la libérer (fuite mémoire). |
 | 2 | `CardUI.init_card()` ne renseigne ni `CardLabel` ni `CardDescription` (ils gardent leur texte placeholder de la scène) ni `CardImage` (ligne commentée). |
 | 2 | `EnemyDatabase.encounter_groups` référence des ennemis inexistants (`cultist`, `jaw_worm`, `boss_slime`) : ils sont silencieusement ignorés (une rencontre peut se retrouver vide). |

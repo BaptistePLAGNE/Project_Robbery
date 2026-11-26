@@ -47,7 +47,7 @@ func _on_hand_update():
 func init_card(card_data: CardData) -> void:
 	data = card_data
 	cost_label.set_text(str(card_data.cost_value))
-	value_label.set_text(str(card_data.base_value))
+	value_label.set_text(str(card_data.get_display_value()))
 	#card_image.texture = data.texture
 	set_pivot_offset_ratio(Vector2(0.5, 0.5))
 	##pivot_offset = size / 2
