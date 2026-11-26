@@ -47,8 +47,12 @@ func _on_hand_update():
 func init_card(card_data: CardData) -> void:
 	data = card_data
 	cost_label.set_text(str(card_data.cost_value))
-	value_label.set_text(str(card_data.base_value))
-	#card_image.texture = data.texture
+	value_label.set_text(str(card_data.get_display_value()))
+	card_label.set_text(card_data.name)
+	card_description.set_text(card_data.Description)
+	# L'illustration de la scène sert de placeholder tant que la carte n'a pas de texture.
+	if card_data.texture != null:
+		card_image.texture = card_data.texture
 	set_pivot_offset_ratio(Vector2(0.5, 0.5))
 	##pivot_offset = size / 2
 
@@ -80,4 +84,5 @@ func _on_gui_input(event: InputEvent) -> void:
 func execute_card(caster: Node2D, target: Node2D):
 	for action in data.base_actions:
 		action.execute(caster, target)
+	EventBus.card_played.emit(data)
 	queue_free()
