@@ -6,9 +6,6 @@ class_name Character extends Node2D
 @onready var Id: int
 
 @onready var character_image: Sprite2D = $CharacterImage
-@onready var strenght_label: Label = $Strenght/Strenght_Label
-
-@onready var button: Button = $Button
 
 @onready var hp_label: Label = $HP/HPLabel
 
@@ -16,6 +13,8 @@ class_name Character extends Node2D
 
 # Bonus/malus d'attaque propre à ce personnage, actif tout le combat.
 var attack_modifier: int = 0
+# Bouclier : absorbe les dégâts avant les PV (même règle que Enemy).
+var current_shield: int = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -28,13 +27,16 @@ func set_values(_HP: int, _Id: int):
 	hp_label.set_text(str(Character_HP))
 
 func take_damage(base_value: int) -> void:
-	Character_HP = Character_HP - base_value
+	current_shield = current_shield - base_value
+	if current_shield < 0:
+		Character_HP = Character_HP + current_shield
+		current_shield = 0
 	if Character_HP <= 0:
 		queue_free()
 	hp_label.set_text(str(Character_HP))
 	
 func defend(base_value: int) -> void:
-	null
+	current_shield = current_shield + base_value
 	
 func apply_buff(base_value: int) -> void:
 	attack_modifier += base_value

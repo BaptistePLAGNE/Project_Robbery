@@ -26,6 +26,9 @@ extends Node2D
 
 var rng = RandomNumberGenerator.new()
 
+# PV de départ de chaque personnage (en attendant des données par personnage).
+@export var character_hp: int = 50
+
 @onready var heal: int
 
 
@@ -97,7 +100,7 @@ func _ready() -> void:
 		var id: int
 		id = character_container.get_child_count() - 1
 		
-		new_character.set_values(rng.randi_range(1,100), id)
+		new_character.set_values(character_hp, id)
 		new_character.visible = true
 		
 		new_character.position = character_spawn_point_array[id].global_position
