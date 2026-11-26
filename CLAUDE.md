@@ -74,7 +74,7 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 **`HandManager.gd`**
 - `_add_card()` : instancie `CardUI.tscn`, l'ajoute à la main, l'initialise avec la première carte de `CardDatabase.get_encounter("act1_easy_1")`, puis recalcule l'espacement.
 - `_remove_card(card)` : détruit la carte et recalcule l'espacement (non utilisé pour l'instant : `Card.execute_card()` fait elle-même `queue_free()`).
-- `_set_Separation()` : si la largeur totale des cartes dépasse 2/3 de la largeur du viewport, applique une séparation négative pour les faire se chevaucher ; sinon séparation de 4 px. (Instancie une carte temporaire pour lire sa taille, sans la libérer.)
+- `_set_Separation()` : si la largeur totale des cartes dépasse 2/3 de la largeur du viewport, applique une séparation négative pour les faire se chevaucher ; sinon séparation de 4 px. La largeur d'une carte est mesurée une seule fois par `_get_card_width()` (instance temporaire aussitôt libérée), puis mise en cache.
 - `_on_sort_children()` : à chaque réagencement du conteneur, émet `EventBus.hand_update` pour que chaque carte mémorise sa position de repos.
 
 **`CardUI.gd` (classe `Card`)** : comportement d'une carte dans la main.
@@ -134,7 +134,6 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 
 | Crit. | Point |
 |:---:|---|
-| 3 | `HandManager._set_Separation()` instancie une carte à chaque appel sans jamais la libérer (fuite mémoire). |
 | 2 | `CardUI.init_card()` ne renseigne ni `CardLabel` ni `CardDescription` (ils gardent leur texte placeholder de la scène) ni `CardImage` (ligne commentée). |
 | 2 | `EnemyDatabase.encounter_groups` référence des ennemis inexistants (`cultist`, `jaw_worm`, `boss_slime`) : ils sont silencieusement ignorés (une rencontre peut se retrouver vide). |
 | 2 | `CardDatabase.cards_hand` / `get_encounter` reprennent la structure des rencontres ennemies ; `HandManager._add_card()` pioche toujours la première carte de `act1_easy_1` (pas encore de vrai deck/pioche/défausse). |
