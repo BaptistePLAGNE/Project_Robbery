@@ -101,7 +101,7 @@ Le contenu du jeu est défini en **données**, pas en code :
 1. Clic sur une carte → `EventBus.card_pressed` → `FightManager` mémorise/désélectionne la carte et émet `card_selected` (les CardUI s'animent).
 2. Clic sur un personnage disponible → `character_pressed` → le pin de sélection s'affiche.
 3. Clic sur un ennemi → `enemy_pressed` → si carte + personnage disponibles : `card.execute_card(character, enemy)`, la carte est détruite, le personnage devient indisponible, test de fin de combat.
-4. Bouton fin de tour → `end_turn_pressed` → `enemy_turn()` (chaque ennemi attaque un personnage aléatoire, 0,5 s entre chaque), main re-complétée à 5, personnages réactivés, test de fin de combat.
+4. Bouton fin de tour → `end_turn_pressed` → `enemy_turn()` (chaque ennemi attaque un personnage vivant aléatoire, via `_get_alive_characters()`, 0,5 s entre chaque ; la boucle s'arrête si toute l'équipe est morte), main re-complétée à 5, personnages réactivés, test de fin de combat.
 
 ### Ajouter du contenu
 - **Nouvelle carte** : créer un `.tres` de type `CardData` dans `Ressources/Cards/` (avec ses `CardActionData` en sous-ressources), puis l'ajouter à `CardDatabase.cards` et aux listes de `cards_hand`.
@@ -132,7 +132,6 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 
 | Crit. | Point |
 |:---:|---|
-| 5 | `enemy_turn()` ne vérifie pas qu'il reste des personnages : si l'équipe meurt avant le dernier ennemi, `character_container.get_child(...)` renvoie `null` et l'appel à `execute` plante (le test de fin de combat n'a lieu qu'après la boucle). |
 | 4 | `Enemy.apply_buff/apply_debuff` modifient `data.attack`, mais `EnemyData` ne déclare pas de champ `attack` (pourtant présent dans `Gobelin.tres`) → erreur à l'exécution si un buff/debuff ennemi est joué. De plus, modifier `data` altère la ressource partagée par tous les ennemis du même type. |
 | 3 | Le label de valeur de la carte affiche `CardData.base_value`, alors que les dégâts réels viennent de `CardActionData.base_value` (le Pistolet affiche 1 mais inflige 15). |
 | 3 | `HandManager._set_Separation()` instancie une carte à chaque appel sans jamais la libérer (fuite mémoire). |

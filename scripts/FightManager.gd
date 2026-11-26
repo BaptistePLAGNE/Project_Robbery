@@ -92,10 +92,23 @@ func setup_battle(encounter_id) -> void:
 	
 func enemy_turn() -> bool:
 	for enemy in enemy_container.get_children():
-		var character = character_container.get_child(randi_range(0,character_container.get_child_count()-1))
+		# On ne cible que les personnages encore en vie : si l'équipe est
+		# entièrement morte, les ennemis restants ne jouent pas.
+		var alive_characters: Array[Character] = _get_alive_characters()
+		if alive_characters.is_empty():
+			break
+		var character: Character = alive_characters[randi_range(0, alive_characters.size() - 1)]
 		enemy.execute_turn(character)
 		await get_tree().create_timer(0.5).timeout
 	return true
+
+# Personnages encore présents et non marqués pour destruction (queue_free).
+func _get_alive_characters() -> Array[Character]:
+	var alive: Array[Character] = []
+	for _character in character_container.get_children():
+		if not _character.is_queued_for_deletion():
+			alive.append(_character)
+	return alive
 
 func _on_enemy_pressed(_Enemy: Enemy):
 	if card_selected != null:
