@@ -31,7 +31,10 @@ var rng = RandomNumberGenerator.new()
 
 signal fight_end(int)
 
-var character_selected: Character
+# Personnages mobilisés pour la carte sélectionnée (énergie = nb de personnages).
+var selected_characters: Array[Character] = []
+# Un pin (copie de Character_Selected_Pin) par personnage sélectionné.
+var _selection_pins: Dictionary = {}
 var card_selected : Card
 var enemy_selected : Enemy
 
@@ -43,14 +46,34 @@ func _on_card_selected(card: Card):
 	EventBus.card_selected.emit(card_selected)
 	
 	
+# null = vider la sélection ; sinon, ajoute ou retire le personnage de la
+# sélection (plusieurs personnages peuvent être mobilisés pour une carte).
 func _on_character_selected(character: Character):
 	if character == null:
-		character_selected_pin.visible = false
-		character_selected = null
-	elif character != character_selected:
-		character_selected = character
-		character_selected_pin.position = Vector2(character.position.x, character.position.y-100)
-		character_selected_pin.visible = true
+		_clear_character_selection()
+	elif selected_characters.has(character):
+		selected_characters.erase(character)
+		_selection_pins[character].queue_free()
+		_selection_pins.erase(character)
+	else:
+		selected_characters.append(character)
+		var pin: Sprite2D = character_selected_pin.duplicate()
+		add_child(pin)
+		pin.position = Vector2(character.position.x, character.position.y-100)
+		pin.visible = true
+		_selection_pins[character] = pin
+
+func _clear_character_selection() -> void:
+	for pin in _selection_pins.values():
+		pin.queue_free()
+	_selection_pins.clear()
+	selected_characters.clear()
+
+# Énergie = personnages vivants encore disponibles ce tour.
+func _update_energy() -> void:
+	var alive: Array[Character] = _get_alive_characters()
+	var available: int = alive.filter(func(c: Character): return c.available).size()
+	CombatUI.update_energy(available, alive.size())
 		
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -80,6 +103,8 @@ func _ready() -> void:
 		new_character.position = character_spawn_point_array[id].global_position
 		
 		heal = heal + new_character.Character_HP
+
+	_update_energy()
 
 
 func setup_battle(encounter_id) -> void:
@@ -111,21 +136,33 @@ func _get_alive_characters() -> Array[Character]:
 			alive.append(_character)
 	return alive
 
+# Une carte se joue si exactement cost_value personnages disponibles sont
+# sélectionnés. Le premier sélectionné est le lanceur (son attack_modifier
+# s'applique) ; tous les personnages mobilisés deviennent indisponibles.
 func _on_enemy_pressed(_Enemy: Enemy):
-	if card_selected != null:
-			if character_selected != null:
-				if character_selected.available:
-					var caster: Character = character_selected
-					var played_card: Card = card_selected
-					# La sélection est vidée AVANT l'attente : la carte jouée va être
-					# détruite, elle ne doit plus jamais être référencée.
-					card_selected = null
-					caster.available = false
-					caster.character_image.material.set_shader_parameter("active", true)
-					EventBus.character_pressed.emit(null)
-					played_card.execute_card(caster, _Enemy)
-					await get_tree().create_timer(0.1).timeout
-					_test_end_fight()
+	if card_selected == null:
+		return
+	if selected_characters.size() != card_selected.data.cost_value:
+		return
+	for _character in selected_characters:
+		if not is_instance_valid(_character) or not _character.available:
+			return
+
+	var caster: Character = selected_characters[0]
+	var mobilized: Array[Character] = []
+	mobilized.assign(selected_characters)
+	var played_card: Card = card_selected
+	# La sélection est vidée AVANT l'attente : la carte jouée va être
+	# détruite, elle ne doit plus jamais être référencée.
+	card_selected = null
+	for _character in mobilized:
+		_character.available = false
+		_character.character_image.material.set_shader_parameter("active", true)
+	EventBus.character_pressed.emit(null)
+	_update_energy()
+	played_card.execute_card(caster, _Enemy)
+	await get_tree().create_timer(0.1).timeout
+	_test_end_fight()
 	
 #func somme(accum: int, nombre: Character):
 #	return accum + nombre.Character_HP
@@ -168,6 +205,7 @@ func _on_end_round_pressed() -> void:
 		_character.available = true
 		_character.character_image.material.set_shader_parameter("active", false)
 		#reset character_available
+	_update_energy()
 	_test_end_fight()
 
 func _test_end_fight() -> void:

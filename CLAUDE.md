@@ -16,7 +16,7 @@ Projet solo. Jeu de cartes 2D au tour par tour, de type *deckbuilder roguelike*.
 - Les sprites actuels (pack craftpix « desert enemy ») sont des **placeholders** hors thème, à remplacer quand la démo technique sera plus aboutie : ne pas s'appuyer dessus pour des choix de design.
 
 ### État actuel
-**Démo technique d'un seul combat.** Le joueur pioche dans un deck de départ (pioche mélangée, défausse remélangée quand la pioche est vide) et contrôle 1 à 3 personnages face à des ennemis. À chaque tour, il sélectionne une carte, un personnage disponible, puis un ennemi cible. Chaque personnage ne peut agir qu'une fois par tour (il passe en niveaux de gris une fois utilisé). Quand le joueur termine son tour, chaque ennemi joue son action, puis la main est complétée jusqu'à 5 cartes. En fin de combat (`VICTORY` / `LOSS`), le jeu se ferme (`get_tree().quit()`). Pas encore de plateau, ni de deck qui évolue entre les combats.
+**Démo technique d'un seul combat.** Le joueur pioche dans un deck de départ (pioche mélangée, défausse remélangée quand la pioche est vide) et contrôle 1 à 3 personnages face à des ennemis. À chaque tour, il sélectionne une carte, autant de personnages disponibles que son coût, puis un ennemi cible. **L'énergie est le nombre de personnages disponibles** : chaque personnage ne peut être mobilisé qu'une fois par tour (il passe en niveaux de gris une fois utilisé). Quand le joueur termine son tour, chaque ennemi joue son action, puis la main est complétée jusqu'à 5 cartes. En fin de combat (`VICTORY` / `LOSS`), le jeu se ferme (`get_tree().quit()`). Pas encore de plateau, ni de deck qui évolue entre les combats.
 
 ## Stack
 
@@ -47,11 +47,11 @@ FightManager (Node2D, FightManager.gd)      ← scène principale, orchestre le 
 ├── CombatUI (Control, CombatUI.gd)
 │   ├── EndTurnButton
 │   ├── HandManager (HBoxContainer, HandManager.gd)  ← contient les CardUI
-│   └── EnergyLabel                                    (pas encore branché)
+│   └── EnergyLabel      ← « Énergie : disponibles / vivants », via CombatUI.update_energy()
 ├── Enemy_Container      ← instances de Enemy.tscn
 ├── Character_Container  ← instances de Character.tscn
 ├── Enemy_SpawnPoints (5) / Character_SpawnPoints (3)
-├── Character_Selected_Pin
+├── Character_Selected_Pin   ← modèle caché, dupliqué pour chaque personnage sélectionné
 └── End_Fight_Label
 ```
 
@@ -94,7 +94,7 @@ HandManager (HBoxContainer « Hand », HandManager.gd, scenes/HandManager.tscn)
 
 ### Données (pattern Resource)
 Le contenu du jeu est défini en **données**, pas en code :
-- `CardData` : `id`, `name`, `Description`, `cost_value`, `texture`, `base_actions: Array[CardActionData]` ; `get_display_value()` renvoie la `base_value` de la première action (valeur affichée sur la carte).
+- `CardData` : `id`, `name`, `Description`, `cost_value` (= nombre de personnages à mobiliser, 1 par défaut), `texture`, `base_actions: Array[CardActionData]` ; `get_display_value()` renvoie la `base_value` de la première action (valeur affichée sur la carte).
 - `EnemyData` : `id`, `name`, `max_hp`, `texture`, `possible_actions: Array[EnemyActionData]` ; `get_next_action()` fait tourner les actions en boucle selon le numéro de tour.
 - `CardActionData` / `EnemyActionData` : `action_type` (`ATTACK`, `DEFEND`, `BUFF`, `DEBUFF`, `UNKNOW`) + `base_value`, et `execute(caster, target)`.
 
@@ -104,9 +104,9 @@ Le contenu du jeu est défini en **données**, pas en code :
 
 ### Flux d'un tour
 1. Clic sur une carte → `EventBus.card_pressed` → `FightManager` mémorise/désélectionne la carte et émet `card_selected` (les CardUI s'animent).
-2. Clic sur un personnage disponible → `character_pressed` → le pin de sélection s'affiche.
-3. Clic sur un ennemi → `enemy_pressed` → si carte + personnage disponibles : la sélection (carte et personnage) est vidée et le personnage devient indisponible, puis `card.execute_card(character, enemy)` (la carte est détruite), test de fin de combat.
-4. Bouton fin de tour → `end_turn_pressed` → sélection vidée → `enemy_turn()` (chaque ennemi attaque un personnage vivant aléatoire, via `_get_alive_characters()`, 0,5 s entre chaque ; la boucle s'arrête si toute l'équipe est morte), main re-complétée à 5 depuis la pioche, personnages réactivés, test de fin de combat.
+2. Clic sur un personnage disponible → `character_pressed` → il est ajouté à `selected_characters` (ou retiré s'il y était déjà) et un pin s'affiche au-dessus de lui. `character_pressed(null)` vide la sélection.
+3. Clic sur un ennemi → `enemy_pressed` → si une carte est sélectionnée et que **exactement `cost_value`** personnages disponibles sont sélectionnés : la sélection est vidée, tous les personnages mobilisés deviennent indisponibles, l'énergie est mise à jour, puis `card.execute_card(premier_sélectionné, enemy)` (le premier sélectionné est le lanceur), test de fin de combat. Sinon, rien ne se passe.
+4. Bouton fin de tour → `end_turn_pressed` → sélection vidée → `enemy_turn()` (chaque ennemi attaque un personnage vivant aléatoire, via `_get_alive_characters()`, 0,5 s entre chaque ; la boucle s'arrête si toute l'équipe est morte), main re-complétée à 5 depuis la pioche, personnages réactivés, énergie mise à jour, test de fin de combat.
 
 ### Ajouter du contenu
 - **Nouvelle carte** : créer un `.tres` de type `CardData` dans `Ressources/Cards/` (avec ses `CardActionData` en sous-ressources), puis l'ajouter à `CardDatabase.cards` et aux decks de `starter_decks`.
@@ -137,7 +137,7 @@ Liste triée par criticité décroissante. Retirer une ligne dès que le point e
 
 | Crit. | Point |
 |:---:|---|
-| 2 | `cost_value` et `EnergyLabel` ne sont pas encore utilisés (pas de système d'énergie). |
+| 2 | Aucun retour visuel quand on clique un ennemi sans avoir sélectionné le bon nombre de personnages : le clic est simplement ignoré. |
 | 2 | `Character.defend` est un stub (pas de bouclier côté personnages, contrairement à `Enemy`) ; les personnages ont des PV aléatoires (1–100) et un sprite ennemi temporaire. |
 | 2 | `CardActionData` et `EnemyActionData` sont des copies quasi identiques (même enum, même `execute`) : toute modification doit être faite dans les deux. |
 | 2 | `FightManager` : le spawn des ennemis utilise `enemy_spawn_point_array[i].position` (position locale) alors que les personnages utilisent `global_position` (sans effet tant que `Enemy_SpawnPoints` est à l'origine). |
